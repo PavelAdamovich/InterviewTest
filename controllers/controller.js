@@ -100,21 +100,56 @@ module.exports = {
     signup: function(req, res) {
     	var username = req.body.username
         var password = req.body.password
+        var confirmPassword = req.body.confirm_password
         var email = req.body.email
         var rememberMe = req.body.rememberMe
 
         if (username === undefined || typeof username != 'string' || username.length == 0) {
-        	res.send("Username not provided")
+        	res.render("signup", {
+                errorMessage: "Username not provided"
+            })
+
+            return
+        }
+
+        if (username.length < 6) {
+            res.render("signup", {
+                errorMessage: "Username should be at least 6 characters long"
+            })
+
             return
         }
 
         if (password === undefined || typeof password != "string" || password.length == 0) {
-        	res.send("Password not provided")
+        	res.render("signup", {
+                errorMessage: "Password not provided"
+            })
+
+            return
+        }
+
+        var numberRegex = /\d+/
+
+        if (password.length < 8 || password.toLocaleLowerCase() === password || !numberRegex.test(password)) {
+            res.render("signup", {
+                errorMessage: "Invalid password"
+            })
+            return
+        }
+
+        if (password !== confirmPassword) {
+            res.render("signup", {
+                errorMessage: "Passwords do not match" 
+            })
+
             return
         }
 
         if (email === undefined || typeof email != "string" || email.length == 0) {
-        	res.send("Email not provided")
+        	res.render("signup", {
+                errorMessage: "Email not provided"
+            })
+            
             return
         }
 
