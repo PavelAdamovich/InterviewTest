@@ -5,6 +5,8 @@ UserModel = require("../models/user")
 Passport = require("passport")
 LocalStrategy = require('passport-local').Strategy
 
+var DAYS2MS = 24 * 60 * 60 * 1000
+
 module.exports = {
     configure: function(app) {
         app.use(require('express-session')({
@@ -81,8 +83,10 @@ module.exports = {
                 }
                 if (rememberMe) {
                     // Allow the user to be remembered by the server. When they close the browser and end their session they should not have to login again once they attempt to go to the homepage
+                    req.session.cookie.maxAge = 7 * DAYS2MS // 7 days
                 } else {
                     // Do not remember the user
+                    req.session.cookie.expires = false
                 }
                 return res.redirect('/')
             })
@@ -135,9 +139,11 @@ module.exports = {
                     }
                     Passport.authenticate('local')(req, res, function() {
                         if (rememberMe) {
-                        	// Allow the user to be remembered by the server. When they close the browser and end their session they should not have to login again once they attempt to go to the homepage
+                            // Allow the user to be remembered by the server. When they close the browser and end their session they should not have to login again once they attempt to go to the homepage
+                            req.session.cookie.maxAge = 7 * DAYS2MS // 7 days
                         } else {
                             // Do not remember the user
+                            req.session.expires = false
                         }
                         res.redirect('/')
                     })
@@ -146,6 +152,9 @@ module.exports = {
         })
     },
     isLoggedIn: function(req, res, next) {
+        if (req.user) {
+            return next()
+        }
     	// Add a check to see if the user is logged in. If the user is logged in. Call next(), otherwize, redirect them to the login page
         res.redirect("/login")
     },
